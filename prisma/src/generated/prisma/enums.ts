@@ -9,7 +9,17 @@
 * 🟢 You can import this file directly.
 */
 
+export const BusType = {
+  AC: 'AC',
+  NON_AC: 'NON_AC'
+} as const
+
+export type BusType = (typeof BusType)[keyof typeof BusType]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const StopType = {
+  BOARDING: 'BOARDING',
+  DROPPING: 'DROPPING'
+} as const
+
+export type StopType = (typeof StopType)[keyof typeof StopType]

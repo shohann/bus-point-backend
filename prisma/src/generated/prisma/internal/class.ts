@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.0.1",
   "engineVersion": "f09f2815f091dbba658cdcd2264306d88bb5bda6",
   "activeProvider": "postgresql",
-  "inlineSchema": "// prisma/schema.prisma\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
+  "inlineSchema": "model Bus {\n  id              Int         @id @default(autoincrement())\n  bus_type        BusType     @default(NON_AC)\n  bus_model       String\n  bus_number      String\n  bus_operator    BusOperator @relation(fields: [bus_operator_id], references: [id])\n  bus_operator_id Int\n  seats           Seat[]\n  trips           Trip[]\n  status          Boolean     @default(false)\n}\n\nmodel Seat {\n  id          Int    @id @default(autoincrement())\n  seat_number String\n  seat_col    Int\n  seat_row    Int\n  bus_id      Int\n  bus         Bus    @relation(fields: [bus_id], references: [id])\n}\n\n// is_booked: boolean Example: 38 Seat(s) Available (To check weather the seat allocated for a particular trip)\n\nenum BusType {\n  AC\n  NON_AC\n}\n\nmodel BusOperator {\n  id    Int     @id @default(autoincrement())\n  name  String  @unique\n  logo  String?\n  buses Bus[]\n  // trips Trip[]\n  // has many bus\n}\n\nmodel BusStop {\n  id       Int        @id @default(autoincrement())\n  name     String\n  lat      Float\n  long     Float\n  tripStop TripStop[]\n}\n\nmodel TripStop {\n  id         Int      @id @default(autoincrement())\n  stop_id    Int\n  time       DateTime // Based on this we will sort it\n  stop_order Int? // Order of this stop in the trip route\n  stop_type  StopType\n  stop       BusStop  @relation(fields: [stop_id], references: [id])\n  trip       Trip[]\n}\n\nmodel City {\n  id        Int    @id @default(autoincrement())\n  name      String\n  lat       Float\n  long      Float\n  tripsFrom Trip[] @relation(\"StartCity\")\n  tripsTo   Trip[] @relation(\"EndCity\")\n}\n\nenum StopType {\n  BOARDING\n  DROPPING\n}\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Trip {\n  id             Int      @id @default(autoincrement())\n  departure_time DateTime\n  arrival_time   DateTime\n  route          String\n  price          Float\n  discount       Float\n  bus_id         Int\n  bus            Bus      @relation(fields: [bus_id], references: [id])\n  estimated_time DateTime\n  start_city_id  Int\n  start_city     City     @relation(\"StartCity\", fields: [start_city_id], references: [id])\n  end_city_id    Int\n  end_city       City     @relation(\"EndCity\", fields: [end_city_id], references: [id])\n  trip_stop      TripStop @relation(fields: [trip_stop_id], references: [id])\n  trip_stop_id   Int\n}\n\n// Possible indexes for performance optimization\n// @@index([start_city_id], name: \"start_city_idx\")\n// @@index([end_city_id], name: \"end_city_idx\")\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  name      String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Bus\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bus_type\",\"kind\":\"enum\",\"type\":\"BusType\"},{\"name\":\"bus_model\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bus_number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"bus_operator\",\"kind\":\"object\",\"type\":\"BusOperator\",\"relationName\":\"BusToBusOperator\"},{\"name\":\"bus_operator_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"seats\",\"kind\":\"object\",\"type\":\"Seat\",\"relationName\":\"BusToSeat\"},{\"name\":\"trips\",\"kind\":\"object\",\"type\":\"Trip\",\"relationName\":\"BusToTrip\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Boolean\"}],\"dbName\":null},\"Seat\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"seat_number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"seat_col\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"seat_row\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bus_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bus\",\"kind\":\"object\",\"type\":\"Bus\",\"relationName\":\"BusToSeat\"}],\"dbName\":null},\"BusOperator\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"logo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"buses\",\"kind\":\"object\",\"type\":\"Bus\",\"relationName\":\"BusToBusOperator\"}],\"dbName\":null},\"BusStop\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"long\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"tripStop\",\"kind\":\"object\",\"type\":\"TripStop\",\"relationName\":\"BusStopToTripStop\"}],\"dbName\":null},\"TripStop\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"stop_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"stop_order\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"stop_type\",\"kind\":\"enum\",\"type\":\"StopType\"},{\"name\":\"stop\",\"kind\":\"object\",\"type\":\"BusStop\",\"relationName\":\"BusStopToTripStop\"},{\"name\":\"trip\",\"kind\":\"object\",\"type\":\"Trip\",\"relationName\":\"TripToTripStop\"}],\"dbName\":null},\"City\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lat\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"long\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"tripsFrom\",\"kind\":\"object\",\"type\":\"Trip\",\"relationName\":\"StartCity\"},{\"name\":\"tripsTo\",\"kind\":\"object\",\"type\":\"Trip\",\"relationName\":\"EndCity\"}],\"dbName\":null},\"Trip\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"departure_time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"arrival_time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"route\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"discount\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"bus_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bus\",\"kind\":\"object\",\"type\":\"Bus\",\"relationName\":\"BusToTrip\"},{\"name\":\"estimated_time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"start_city_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"start_city\",\"kind\":\"object\",\"type\":\"City\",\"relationName\":\"StartCity\"},{\"name\":\"end_city_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"end_city\",\"kind\":\"object\",\"type\":\"City\",\"relationName\":\"EndCity\"},{\"name\":\"trip_stop\",\"kind\":\"object\",\"type\":\"TripStop\",\"relationName\":\"TripToTripStop\"},{\"name\":\"trip_stop_id\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -58,8 +58,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Buses
+   * const buses = await prisma.bus.findMany()
    * ```
    * 
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
@@ -80,8 +80,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Buses
+ * const buses = await prisma.bus.findMany()
  * ```
  * 
  * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
@@ -175,6 +175,76 @@ export interface PrismaClient<
   }>>
 
       /**
+   * `prisma.bus`: Exposes CRUD operations for the **Bus** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Buses
+    * const buses = await prisma.bus.findMany()
+    * ```
+    */
+  get bus(): Prisma.BusDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.seat`: Exposes CRUD operations for the **Seat** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Seats
+    * const seats = await prisma.seat.findMany()
+    * ```
+    */
+  get seat(): Prisma.SeatDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.busOperator`: Exposes CRUD operations for the **BusOperator** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BusOperators
+    * const busOperators = await prisma.busOperator.findMany()
+    * ```
+    */
+  get busOperator(): Prisma.BusOperatorDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.busStop`: Exposes CRUD operations for the **BusStop** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BusStops
+    * const busStops = await prisma.busStop.findMany()
+    * ```
+    */
+  get busStop(): Prisma.BusStopDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.tripStop`: Exposes CRUD operations for the **TripStop** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TripStops
+    * const tripStops = await prisma.tripStop.findMany()
+    * ```
+    */
+  get tripStop(): Prisma.TripStopDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.city`: Exposes CRUD operations for the **City** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Cities
+    * const cities = await prisma.city.findMany()
+    * ```
+    */
+  get city(): Prisma.CityDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.trip`: Exposes CRUD operations for the **Trip** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Trips
+    * const trips = await prisma.trip.findMany()
+    * ```
+    */
+  get trip(): Prisma.TripDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
     * Example usage:
     * ```ts

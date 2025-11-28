@@ -16,13 +16,12 @@ describe('AppService', () => {
   };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AppService,
-        {
-          provide: DatabaseService,
-          useValue: mockDbService,
-        },
+        { provide: DatabaseService, useValue: mockDbService },
       ],
     }).compile();
 
@@ -34,14 +33,56 @@ describe('AppService', () => {
   });
 
   describe('getHello', () => {
-    it('should return an array of users by calling db.user.findMany', async () => {
+    it('should return multiple users and call findMany exactly once', async () => {
       const mockUsers = [
-        { id: 1, name: 'Test User', email: 'test@example.com' },
+        { id: 1, name: 'Alpha', email: 'a@example.com' },
+        { id: 2, name: 'Beta', email: 'b@example.com' },
       ];
+
       mockDbService.user.findMany.mockResolvedValue(mockUsers);
 
-      await expect(service.getHello()).resolves.toEqual(mockUsers);
+      const result = await service.getHello();
+
+      expect(result).toEqual(mockUsers);
+      expect(mockDbService.user.findMany).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call findMany with no filters (empty args)', async () => {
+      mockDbService.user.findMany.mockResolvedValue([]);
+
+      await service.getHello();
+
+      // Prisma's findMany should be called with no params
+      expect(mockDbService.user.findMany).toHaveBeenCalledWith();
+    });
+
+    it('should handle the case where no users exist', async () => {
+      mockDbService.user.findMany.mockResolvedValue([]);
+
+      const result = await service.getHello();
+
+      expect(result).toEqual([]);
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('should throw an error if database call fails', async () => {
+      mockDbService.user.findMany.mockRejectedValue(
+        new Error('Database connection lost'),
+      );
+
+      await expect(service.getHello()).rejects.toThrow(
+        'Database connection lost',
+      );
       expect(mockDbService.user.findMany).toHaveBeenCalled();
+    });
+
+    it('should not swallow or modify the thrown error', async () => {
+      const dbError = new Error('Prisma failure');
+
+      mockDbService.user.findMany.mockRejectedValue(dbError);
+
+      // Must throw EXACT error instance
+      await expect(service.getHello()).rejects.toBe(dbError);
     });
   });
 });

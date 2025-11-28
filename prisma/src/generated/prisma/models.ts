@@ -8,5 +8,12 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/Bus.js'
+export type * from './models/Seat.js'
+export type * from './models/BusOperator.js'
+export type * from './models/BusStop.js'
+export type * from './models/TripStop.js'
+export type * from './models/City.js'
+export type * from './models/Trip.js'
 export type * from './models/User.js'
 export type * from './commonInputTypes.js'

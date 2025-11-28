@@ -51,6 +51,13 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Bus: 'Bus',
+  Seat: 'Seat',
+  BusOperator: 'BusOperator',
+  BusStop: 'BusStop',
+  TripStop: 'TripStop',
+  City: 'City',
+  Trip: 'Trip',
   User: 'User'
 } as const
 
@@ -68,6 +75,86 @@ export const TransactionIsolationLevel = {
 } as const
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const BusScalarFieldEnum = {
+  id: 'id',
+  bus_type: 'bus_type',
+  bus_model: 'bus_model',
+  bus_number: 'bus_number',
+  bus_operator_id: 'bus_operator_id',
+  status: 'status'
+} as const
+
+export type BusScalarFieldEnum = (typeof BusScalarFieldEnum)[keyof typeof BusScalarFieldEnum]
+
+
+export const SeatScalarFieldEnum = {
+  id: 'id',
+  seat_number: 'seat_number',
+  seat_col: 'seat_col',
+  seat_row: 'seat_row',
+  bus_id: 'bus_id'
+} as const
+
+export type SeatScalarFieldEnum = (typeof SeatScalarFieldEnum)[keyof typeof SeatScalarFieldEnum]
+
+
+export const BusOperatorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  logo: 'logo'
+} as const
+
+export type BusOperatorScalarFieldEnum = (typeof BusOperatorScalarFieldEnum)[keyof typeof BusOperatorScalarFieldEnum]
+
+
+export const BusStopScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lat: 'lat',
+  long: 'long'
+} as const
+
+export type BusStopScalarFieldEnum = (typeof BusStopScalarFieldEnum)[keyof typeof BusStopScalarFieldEnum]
+
+
+export const TripStopScalarFieldEnum = {
+  id: 'id',
+  stop_id: 'stop_id',
+  time: 'time',
+  stop_order: 'stop_order',
+  stop_type: 'stop_type'
+} as const
+
+export type TripStopScalarFieldEnum = (typeof TripStopScalarFieldEnum)[keyof typeof TripStopScalarFieldEnum]
+
+
+export const CityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  lat: 'lat',
+  long: 'long'
+} as const
+
+export type CityScalarFieldEnum = (typeof CityScalarFieldEnum)[keyof typeof CityScalarFieldEnum]
+
+
+export const TripScalarFieldEnum = {
+  id: 'id',
+  departure_time: 'departure_time',
+  arrival_time: 'arrival_time',
+  route: 'route',
+  price: 'price',
+  discount: 'discount',
+  bus_id: 'bus_id',
+  estimated_time: 'estimated_time',
+  start_city_id: 'start_city_id',
+  end_city_id: 'end_city_id',
+  trip_stop_id: 'trip_stop_id'
+} as const
+
+export type TripScalarFieldEnum = (typeof TripScalarFieldEnum)[keyof typeof TripScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {

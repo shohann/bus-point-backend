@@ -4,21 +4,34 @@ import { AppService } from './app.service';
 
 describe('AppController', () => {
   let appController: AppController;
+  let appService: AppService;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService],
+      // Provide a mock for AppService
+      providers: [
+        {
+          provide: AppService,
+          useValue: {
+            getHello: jest.fn().mockResolvedValue([]), // Mock the method used by controller
+          },
+        },
+      ],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    appController = module.get<AppController>(AppController);
+    appService = module.get<AppService>(AppService);
   });
 
   describe('root', () => {
-    it('should return an array of users', () => {
-      // Since we are not mocking AppService here, this will depend on the actual service.
-      // For a true unit test, you would mock AppService as well.
-      expect(appController.getHello()).toBeDefined();
+    it('should return an array of users', async () => {
+      // Act
+      const result = await appController.getHello();
+
+      // Assert
+      expect(result).toEqual([]);
+      expect(appService.getHello).toHaveBeenCalled();
     });
   });
 });
